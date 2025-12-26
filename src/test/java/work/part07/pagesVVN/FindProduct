@@ -1,0 +1,48 @@
+package work.part07.pagesVVN;
+
+import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.SelenideElement;
+import org.junit.jupiter.api.Assertions;
+
+import java.util.List;
+
+import static com.codeborne.selenide.Selenide.*;
+
+public class FindProduct {
+
+    SelenideElement buyButton = $x("//button[@class='siteBtn _main _productBuy']");
+    SelenideElement basketButton = $x("//a[@href='/basket/']");
+    SelenideElement inputMinPrice = $x("//input[@id='arrFilter_P1_MIN']");
+    SelenideElement inputMaxPrice = $x("//input[@id='arrFilter_P1_MAX']");
+    ElementsCollection collectionFilteredPrice = $$x("//div[@class='price__value']/b");
+
+    public void clickBuyButton(){
+        buyButton.click();
+    }
+    public void clickBasketButton(){
+        basketButton.click();
+    }
+
+    public void selectProductPrice(String minPrice, String maxPrice){
+        inputMinPrice.setValue(minPrice);
+        inputMaxPrice.setValue(maxPrice).pressEnter();
+        sleep(1_000); //пока отработает фильтр на странице
+    }
+
+    public void checkFilteredPriceProduct(String minPrice, String maxPrice){
+
+        //Из коллекции элементов  вытаскиваем тексты в список
+        List<String> list = collectionFilteredPrice.texts();
+        for(String st : list){
+            int num = st.indexOf("р");
+            int price = Integer.parseInt(st.substring(0,num-1)); //Отсекаем текстовку, оставляя числовое значение
+            Assertions.assertTrue(price >= Integer.parseInt(minPrice) && price <= Integer.parseInt(maxPrice) );
+            System.out.println(price);
+        }
+        System.out.println("--------------------");
+    }
+
+
+
+
+}
