@@ -1,0 +1,46 @@
+package work.part07.pagesVVN;
+
+import com.codeborne.selenide.SelenideElement;
+import org.junit.jupiter.api.Assertions;
+
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Selenide.$x;
+import static com.codeborne.selenide.Selenide.sleep;
+
+public class BasketPages {
+
+    SelenideElement stringProduct = $x("//div[@class='basket__items']");
+    SelenideElement quantityProduct = $x("//div[@class='basket__items-wrapper']//div[@class='customInput _number _productQuantity']/input[@type='number']");
+    SelenideElement buttonPlus = $x("//div[@class='basket__items-wrapper']//span[@class='icon _plus']");
+    SelenideElement buttonMinus = $x("//div[@class='basket__items-wrapper']//span[@class='icon _minus']");
+
+    public void checkProductInBasket(String product){
+        stringProduct.shouldHave(text(product));
+    }
+
+    public void checkButtonPlus(){
+        //Количество до нажатия
+        int first = Integer.parseInt(quantityProduct.getValue());
+        System.out.println("-----"+first);
+        buttonPlus.click();
+        //Количество после нажатия
+        int second = Integer.parseInt(quantityProduct.getValue());
+        System.out.println("-----"+second);
+        //разница должна быть в единицу
+        Assertions.assertTrue((second-first)==1);
+    }
+    public void checkButtonMinus(){
+        //устанавливаю первоначальное значение, чтоб было от чего отнимать
+        quantityProduct.setValue("3");
+        //Количество до нажатия
+        int first = Integer.parseInt(quantityProduct.getValue());
+        System.out.println("-----"+first);
+        buttonMinus.click();
+        //Количество после нажатия
+        int second = Integer.parseInt(quantityProduct.getValue());
+        System.out.println("-----"+second);
+        //разница должна быть в единицу
+        Assertions.assertTrue((first-second)==1);
+    }
+
+}
