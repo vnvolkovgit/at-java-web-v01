@@ -1,1 +1,19 @@
+package work.part07.pagesVVN;
+
+import com.codeborne.selenide.SelenideElement;
+
+import static com.codeborne.selenide.Selenide.$x;
+
+public class MainPages {
+
+    SelenideElement searchFild = $x("//input[@id='smart-title-search-input']");
+    SelenideElement searchButton = $x("//button[@type='submit']");
+
+
+    public void searchProduct(String productName){
+        searchFild.setValue(productName);
+        searchButton.click();
+    }
+
+}
 
