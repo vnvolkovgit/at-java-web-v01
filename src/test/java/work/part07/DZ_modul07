@@ -1,0 +1,109 @@
+package work.part07;
+
+import work.part07.pagesVVN.*;
+
+import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.logevents.SelenideLogger;
+import io.qameta.allure.Step;
+import io.qameta.allure.selenide.AllureSelenide;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
+
+public class DZ_modul07 {
+
+    @BeforeAll
+    static void beforeAll() {
+        SelenideLogger.addListener("allure", new AllureSelenide());
+    }
+
+    @BeforeEach
+    void setUP(){
+        Configuration.pageLoadStrategy = "eager";
+        open("https://tk-gazmet.ru");
+        getWebDriver().manage().window().maximize();
+    }
+
+    @Test
+    @Step("1. Проверяем страницу контактов")
+    void searchKontakt(){
+        $x("//div[@class='header__top']//a[@href='/contacts/']").click();
+        $x("//div[@itemprop='address']").shouldHave(text("г. Тула, Новомосковское шоссе, 64-б"));
+    }
+
+    @Test
+    @Step("2. Добавляем товар в корзину")
+    void moveInBasket(){
+        MainPages mainPG = new MainPages();
+        FindProduct findPG = new FindProduct();
+        BasketPages basketPG = new BasketPages();
+
+        //Ищем товар
+        mainPG.searchProduct("Радиатор");
+
+        //Нажимаем кнопку "купить" на первой позиции
+        findPG.clickBuyButton();
+        // в той позиции где нажали кнопку "купить" ищем текст предварительно опустившись на следующий уровень /а, отсекая лишнее
+        String buyProduct = $x("//div[@class='catalogItem__wrapper _table _left']/a").getText();
+        // переходим в корзину
+        findPG.clickBasketButton();
+
+        // В корзине должна быть выбранная позиция
+        basketPG.checkProductInBasket(buyProduct);
+    }
+
+    @Test
+    @Step("3. Проверяем кнопку увеличить количество товара")
+    void testButtonPlus(){
+        MainPages mainPG = new MainPages();
+        FindProduct findPG = new FindProduct();
+        BasketPages basketPG = new BasketPages();
+
+        //Ищем товар
+        mainPG.searchProduct("Радиатор");
+        //Нажимаем кнопку "Купить" на первой позиции
+        findPG.clickBuyButton();
+        // переходим в корзину
+        findPG.clickBasketButton();
+        //нажимаем на количестве +, смотрим, что количество изменилось на единицу
+        basketPG.checkButtonPlus();
+    }
+
+    @Test
+    @Step("4. Проверяем кнопку уменьшить количество товара")
+    void testButtonMinus(){
+        MainPages mainPG = new MainPages();
+        FindProduct findPG = new FindProduct();
+        BasketPages basketPG = new BasketPages();
+
+        //Ищем товар
+        mainPG.searchProduct("Радиатор");
+        //Нажимаем кнопку "Купить" на первой позиции
+        findPG.clickBuyButton();
+        // переходим в корзину
+        findPG.clickBasketButton();
+        //нажимаем на количестве -, смотрим, что количество изменилось на единицу
+        basketPG.checkButtonPlus();// Не понимаю почему но без этого метода неработает.
+        basketPG.checkButtonMinus();
+    }
+
+    @Step("5. Проверяем фильтр по цене")
+    @ParameterizedTest
+    @CsvSource({"0, 999", "1000, 9999"})
+    void checkFiltrPrice(String minPrice, String maxPrice){
+        MainPages mainPG = new MainPages();
+        FindProduct findPG = new FindProduct();
+
+        //Ищем товар
+        mainPG.searchProduct("Радиатор");
+        //фильтруем по минимальной и максимальной цене
+        findPG.selectProductPrice(minPrice, maxPrice);
+        //проверяем, что на странице только товары соответствующие фильтру
+        findPG.checkFilteredPriceProduct(minPrice, maxPrice);
+    }
+
+}
